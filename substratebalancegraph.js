@@ -18,8 +18,11 @@ async function getFirstBlock(address) {
 
 // Update window URL to contain querystring, making it easy to share
 function updateUrl(startBlock, endBlock) {
-    var url = [location.protocol, '//', location.host, location.pathname].join('');
-    url += '?address=' + global.address + '&start=' + startBlock + '&end=' + endBlock;
+    var url = [location.protocol, '//', location.host, location.pathname].join(
+        ''
+    );
+    url +=
+        '?address=' + global.address + '&start=' + startBlock + '&end=' + endBlock;
     window.history.replaceState({ path: url }, '', url);
 }
 
@@ -219,20 +222,26 @@ function reset() {
     Plotly.purge('graph');
     global.balances = [];
     global.address = '';
+    global.blockHashes = [];
 }
 
-// Main function
-async function graphBalance() {
+// Connect to Substrate endpoint
+async function connect() {
     let endpoint = document.getElementById('endpoint').value;
     if (!window.substrate || global.endpoint != endpoint) {
         const provider = new api.WsProvider(endpoint);
         document.getElementById('output').innerHTML = 'Connecting to Endpoint...';
         window.substrate = await api.ApiPromise.create({ provider });
         global.endpoint = endpoint;
+        document.getElementById('output').innerHTML = 'Connected';
     }
+}
 
+// Main function
+async function graphBalance() {
     try {
         reset();
+        await connect();
 
         // Get address from input
         global.address = document.getElementById('address').value;
@@ -297,16 +306,17 @@ function parseQueryStrings() {
 
 // On load, check if querystrings are present
 window.onload = async function() {
+    await connect();
     // Check for querystrings
     var queryStrings = parseQueryStrings();
+    // Set starting block
+    if (queryStrings['start']) {
+        document.getElementById('startBlock').value = queryStrings['start'];
+    }
     // Set address, and run query from first transaction block to current block
     if (queryStrings['address']) {
         document.getElementById('address').value = queryStrings['address'];
         await graphBalance();
-    }
-    // Set starting block
-    if (queryStrings['start']) {
-        document.getElementById('startBlock').value = queryStrings['start'];
     }
     // Set ending block
     if (queryStrings['end']) {
