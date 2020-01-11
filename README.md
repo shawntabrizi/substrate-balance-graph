@@ -1,14 +1,8 @@
-# ETH-Balance-Graph
-Create a graph of the ETH balance over time of an Ethereum address
+# Substrate-Balance-Graph
+Create a graph of the free balance over time of a Substrate address
 
-![ETH Balance Graph Screenshot](https://i.stack.imgur.com/0zaGd.png)
+![Substrate Balance Graph Screenshot](https://i.stack.imgur.com/0zaGd.png)
 
-You can play with this app here: [http://shawntabrizi.com/ethgraph/](http://shawntabrizi.com/ethgraph/)
+You can play with this app here: [http://shawntabrizi.com/substrate-balance-graph/](http://shawntabrizi.com/substrate-balance-graph/)
 
-Tutorial on making Parellel Asynchronous Web3.js calls here: [Blog](http://shawntabrizi.com/crypto/graphing-eth-balance-history-of-an-ethereum-address-using-parallel-asynchronous-requests-in-web3-js/)
-
-
-## Check out other simple Web3.js samples
-https://github.com/shawntabrizi/ETH-Balance
-
-https://github.com/shawntabrizi/ERC-20-Token-Balance
+Built by repurposing: https://github.com/shawntabrizi/ethgraph

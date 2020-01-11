@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Graph the balance of an Ethereum address over time.">
+    <meta name="description" content="Graph the balance of a Substrate address over time.">
     <meta name="author" content="Shawn Tabrizi">
     <link rel="icon" href="">
 
-    <title>ETH Balance Graph</title>
+    <title>Substrate Balance Graph</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
@@ -16,12 +16,22 @@
 <body>
     <div class="container">
         <div class="jumbotron mt-3">
-            <h1>ETH Balance Graph</h1>
-            <p class="lead">Graph the historical ETH Balance of an Ethereum address.</p>
+            <h1>Substrate Balance Graph</h1>
+            <p class="lead">Graph the historical Free Balance of a Substrate address.</p>
             <div class="input-group">
-                <input type="text" class="form-control" id="address" value="0x2fa0ac498d01632f959d3c18e38f4390b005e200" />
+                <input type="text" class="form-control" id="address" value="EGVQCe73TpFyAZx5uKfE1222XfkT3BSKozjgcqzLBnc5eYo" />
                 <div class="input-group-append">
                     <a class="btn btn-lg btn-primary" onclick="graphBalance();" role="button">Graph Balance &raquo;</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">Endpoint:</span>
+                        </div>
+                        <input type="text" class="form-control" id="endpoint" value="wss://kusama-rpc.polkadot.io/" placeholder="wss://..." />
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -47,7 +57,7 @@
         <div id="graph" style="width:100%;height:600px;"></div>
     </div>
     <div class="fixed-bottom bg-light">
-        <p class="text-center text-muted">Created by <a href="http://shawntabrizi.com">Shawn Tabrizi</a> - Source on <a href="https://github.com/shawntabrizi/ETH-Balance-graph">GitHub</a> - <a href="http://shawntabrizi.com/crypto/graphing-eth-balance-history-of-an-ethereum-address-using-parallel-asynchronous-requests-in-web3-js/">Tutorial to create this</a> - Using <a href="https://plot.ly/javascript/">Plotly.js</a> and <a href="https://github.com/ethereum/web3.js/">Web3.js</a></p>
+        <p class="text-center text-muted">Created by <a href="http://shawntabrizi.com">Shawn Tabrizi</a> - Source on <a href="https://github.com/shawntabrizi/substrate-balance-graph">GitHub</a> - Using <a href="https://plot.ly/javascript/">Plotly.js</a> and <a href="https://github.com/polkadot-js/api/">Polkadot.js</a></p>
     </div>
 
     <!-- Bootstrap core JavaScript
@@ -59,7 +69,7 @@
 
     <!-- Custom JavaScript -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="./web3.min.js"></script>
-    <script src="./ethbalancegraph.js"></script>
+    <script src="./polkadot.js"></script>
+    <script src="./substratebalancegraph.js"></script>
 </body>
 </html>
