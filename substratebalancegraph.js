@@ -75,11 +75,11 @@ async function getBalanceInRange(address, startBlock, endBlock) {
                 // Get the block hash
                 let blockHash = global.blockHashes.find(x => x.block == i).hash;
                 // Create a promise to query the balance for that block
-                let freeBalancePromise = substrate.query.balances.freeBalance.at(blockHash, address);
+                let accountDataPromise = substrate.query.system.account.at(blockHash, address);
                 // Create a promise to get the timestamp for that block
                 let timePromise = substrate.query.timestamp.now.at(blockHash);
                 // Push data to a linear array of promises to run in parellel.
-                promises.push(i, freeBalancePromise, timePromise);
+                promises.push(i, accountDataPromise, timePromise);
             }
         }
 
@@ -91,7 +91,9 @@ async function getBalanceInRange(address, startBlock, endBlock) {
         // Restructure the data into an array of objects
         var balances = [];
         for (let i = 0; i < results.length; i = i + 3) {
-            balance = parseFloat(results[i + 1].toString().slice(0, -9)) / 1000;
+            let accountData = results[i + 1];
+            let balance = accountData.data.free;
+            balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
 
             balances.push({
                 block: results[i],
