@@ -41,7 +41,6 @@ async function getBalanceInRange(address, startBlock, endBlock) {
     if (step < 1) {
         step = 1;
     }
-    console.log('STEP', step);
 
     // Tell the user the data is loading...
     document.getElementById('output').innerHTML = 'Loading';
@@ -76,33 +75,41 @@ async function getBalanceInRange(address, startBlock, endBlock) {
                 let blockHash = global.blockHashes.find(x => x.block == i).hash;
                 // Create a promise to query the balance for that block
                 let accountDataPromise = substrate.query.system.account.at(blockHash, address);
+                // Get the old balance format too, block 1,375,956
+                // Old storage key:
+                let freeBalanceKey = "0xc2261276cc9d1f8598ea4b6a74b15c2f6482b9ade7bc6657aaca787ba1add3b4";
+                let addressHash = util_crypto.blake2AsHex(keyring.decodeAddress(address), 256);
+                let finalKey = freeBalanceKey + addressHash.substr(2);
+                let oldBalancePromise = substrate.rpc.state.getStorage(finalKey, blockHash);
                 // Create a promise to get the timestamp for that block
                 let timePromise = substrate.query.timestamp.now.at(blockHash);
                 // Push data to a linear array of promises to run in parellel.
-                promises.push(i, accountDataPromise, timePromise);
+                promises.push(i, accountDataPromise, oldBalancePromise, timePromise);
             }
         }
 
         // Call all promises in parallel for speed, result is array of {block: <block>, balance: <free balance>}
         var results = await Promise.all(promises);
 
-        console.log('Results:', results);
-
         // Restructure the data into an array of objects
         var balances = [];
-        for (let i = 0; i < results.length; i = i + 3) {
+        for (let i = 0; i < results.length; i = i + 4) {
             let accountData = results[i + 1];
             let balance = accountData.data.free;
             balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
 
+            // If we need to use the old balance...
+            if (isNaN(balance)) {
+                balance = util.hexToBn(results[i + 2].toHex(), { isLe: true }).toString();
+                balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
+            }
+
             balances.push({
                 block: results[i],
                 balance: balance,
-                time: new Date(results[i + 2].toNumber())
+                time: new Date(results[i + 3].toNumber())
             });
         }
-
-        console.log(balances);
 
         //Remove loading message
         document.getElementById('output').innerHTML = '';
@@ -115,7 +122,7 @@ async function getBalanceInRange(address, startBlock, endBlock) {
 
 // Unpack a multi-dimensional object
 function unpack(rows, index) {
-    return rows.map(function(row) {
+    return rows.map(function (row) {
         return row[index];
     });
 }
@@ -176,7 +183,7 @@ function sortBlock(a, b) {
 }
 
 // When the graph is zoomed in, get more data points for that range
-$('#graph').on('plotly_relayout', async function(eventdata) {
+$('#graph').on('plotly_relayout', async function (eventdata) {
     // Get the new block range from the eventdata from the resize
     var startBlock = Math.floor(eventdata.target.layout.xaxis.range[0]);
     var endBlock = Math.ceil(eventdata.target.layout.xaxis.range[1]);
@@ -293,7 +300,7 @@ function parseQueryStrings() {
 }
 
 // On load, check if querystrings are present
-window.onload = async function() {
+window.onload = async function () {
     await connect();
     // Check for querystrings
     var queryStrings = parseQueryStrings();
