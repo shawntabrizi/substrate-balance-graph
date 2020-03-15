@@ -94,18 +94,19 @@ async function getBalanceInRange(address, startBlock, endBlock) {
         // Restructure the data into an array of objects
         var balances = [];
         for (let i = 0; i < results.length; i = i + 4) {
+            let block = results[i];
             let accountData = results[i + 1];
             let balance = accountData.data.free;
             balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
 
             // If we need to use the old balance...
-            if (isNaN(balance)) {
+            if (block < 1377831) {
                 balance = util.hexToBn(results[i + 2].toHex(), { isLe: true }).toString();
                 balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
             }
 
             balances.push({
-                block: results[i],
+                block: block,
                 balance: balance,
                 time: new Date(results[i + 3].toNumber())
             });
