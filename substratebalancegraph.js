@@ -75,16 +75,10 @@ async function getBalanceInRange(address, startBlock, endBlock) {
                 let blockHash = global.blockHashes.find(x => x.block == i).hash;
                 // Create a promise to query the balance for that block
                 let accountDataPromise = substrate.query.system.account.at(blockHash, address);
-                // Get the old balance format too, block 1,375,956
-                // Old storage key:
-                let freeBalanceKey = "0xc2261276cc9d1f8598ea4b6a74b15c2f6482b9ade7bc6657aaca787ba1add3b4";
-                let addressHash = util_crypto.blake2AsHex(keyring.decodeAddress(address), 256);
-                let finalKey = freeBalanceKey + addressHash.substr(2);
-                let oldBalancePromise = substrate.rpc.state.getStorage(finalKey, blockHash);
                 // Create a promise to get the timestamp for that block
                 let timePromise = substrate.query.timestamp.now.at(blockHash);
                 // Push data to a linear array of promises to run in parellel.
-                promises.push(i, accountDataPromise, oldBalancePromise, timePromise);
+                promises.push(i, accountDataPromise, timePromise);
             }
         }
 
@@ -93,22 +87,16 @@ async function getBalanceInRange(address, startBlock, endBlock) {
 
         // Restructure the data into an array of objects
         var balances = [];
-        for (let i = 0; i < results.length; i = i + 4) {
+        for (let i = 0; i < results.length; i = i + 3) {
             let block = results[i];
             let accountData = results[i + 1];
             let balance = accountData.data.free;
             balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
 
-            // If we need to use the old balance...
-            if (block < 1377831) {
-                balance = util.hexToBn(results[i + 2].toHex(), { isLe: true }).toString();
-                balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
-            }
-
             balances.push({
                 block: block,
                 balance: balance,
-                time: new Date(results[i + 3].toNumber())
+                time: new Date(results[i + 2].toNumber())
             });
         }
 
