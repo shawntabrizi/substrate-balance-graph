@@ -4,7 +4,10 @@ var global = {
     address: '',
     pointCount: 200,
     blockHashes: [],
-    endpoint: ''
+    endpoint: '',
+    chainDecimals: '',
+    chainToken: 'Units',
+    layout: {},
 };
 
 // Get the first transaction block for an address
@@ -22,11 +25,21 @@ function updateUrl(startBlock, endBlock) {
         ''
     );
     url +=
-        '?address=' + global.address + '&start=' + startBlock + '&end=' + endBlock;
+        '?endpoint='+ global.endpoint +
+        '&address=' + global.address +
+        '&start=' + startBlock +
+        '&end=' + endBlock;
     window.history.replaceState({ path: url }, '', url);
 }
 
-// Given an address and a range of blocks, query the Substrate blockchain for the free balance across the range
+// Convert a big number balance to expected float with correct units.
+function toUnit(balance, decimals) {
+    base = new BN(10).pow(new BN(decimals));
+    dm = new BN(balance).divmod(base);
+    return parseFloat(dm.div.toString() + "." + dm.mod.toString())
+}
+
+// Given an address and a range of blocks, query the Substrate blockchain for the balance across the range
 async function getBalanceInRange(address, startBlock, endBlock) {
     //Update UX with Start and End Block
     document.getElementById('startBlock').value = startBlock;
@@ -82,7 +95,7 @@ async function getBalanceInRange(address, startBlock, endBlock) {
             }
         }
 
-        // Call all promises in parallel for speed, result is array of {block: <block>, balance: <free balance>}
+        // Call all promises in parallel for speed.
         var results = await Promise.all(promises);
 
         // Restructure the data into an array of objects
@@ -90,12 +103,16 @@ async function getBalanceInRange(address, startBlock, endBlock) {
         for (let i = 0; i < results.length; i = i + 3) {
             let block = results[i];
             let accountData = results[i + 1];
-            let balance = accountData.data.free;
-            balance = parseFloat(balance.toString().slice(0, -9)) / 1000;
+
+            let free = toUnit(accountData.data.free, global.chainDecimals);
+            let reserved = toUnit(accountData.data.reserved, global.chainDecimals);
+            let total = free + reserved;
 
             balances.push({
                 block: block,
-                balance: balance,
+                free: free,
+                reserved: reserved,
+                total: total,
                 time: new Date(results[i + 2].toNumber())
             });
         }
@@ -116,33 +133,51 @@ function unpack(rows, index) {
     });
 }
 
-// Create the plotly.js graph
-function createGraph(balances) {
+// Create the plotly.js traces with the balance data.
+function createTraces(balances) {
+    let blocks = unpack(balances, 'block');
+    let time = unpack(balances, 'time');
     // Create the trace we are going to plot
     var trace1 = {
         type: 'scatter',
         mode: 'lines',
-        x: unpack(balances, 'block'),
-        y: unpack(balances, 'balance'),
-        hoverinfo: 'y+text',
-        text: unpack(balances, 'time'),
-        name: 'Free'
+        x: blocks,
+        y: unpack(balances, 'total'),
+        hoverinfo: 'name+y+x+text',
+        text: time,
+        name: 'Total'
     };
 
     var trace2 = {
         type: 'scatter',
         mode: 'lines',
-        x: unpack(balances, 'block'),
+        x: blocks,
+        y: unpack(balances, 'free'),
+        hoverinfo: 'name+y+x+text',
+        text: time,
+        name: 'Free'
+    };
+
+    var trace3 = {
+        type: 'scatter',
+        mode: 'lines',
+        x: blocks,
         y: unpack(balances, 'reserved'),
-        yaxis: 'y2',
-        hoverinfo: 'y+text',
-        text: unpack(balances, 'time'),
+        hoverinfo: 'name+y+x+text',
+        text: time,
         name: 'Reserved'
     };
 
+    return [trace1, trace2, trace3]
+}
+
+// Create the plotly.js graph with the trace data.
+function createGraph(data) {
     // Settings for the graph
-    var layout = {
-        title: 'Free Balance over Time',
+    global.layout = {
+        title: 'Balance over Time',
+        showlegend: true,
+        uirevision: true,
         xaxis: {
             autorange: true,
             rangeslider: {},
@@ -152,18 +187,10 @@ function createGraph(balances) {
         yaxis: {
             autorange: true,
             type: 'linear',
-            title: 'Free Balance'
-        },
-        yaxis2: {
-            autorange: true,
-            type: 'linear',
-            title: 'Reserved Balance',
-            overlaying: 'y',
-            side: 'right'
+            title: global.chainToken || 'Balance'
         }
     };
-
-    Plotly.newPlot('graph', [trace1], layout);
+    Plotly.newPlot('graph', data, global.layout);
 }
 
 // Sort function for sort by block value
@@ -186,18 +213,10 @@ $('#graph').on('plotly_relayout', async function (eventdata) {
     global.balances.sort(sortBlock);
 
     // Create a new trace with new data
-    var trace = {
-        type: 'scatter',
-        mode: 'lines',
-        x: unpack(global.balances, 'block'),
-        y: unpack(global.balances, 'balance'),
-        hoverinfo: 'y+text',
-        text: unpack(global.balances, 'time')
-    };
+    var traces = createTraces(global.balances)
 
-    // Add new trace, then remove the old one... is there a better way to do this?
-    Plotly.addTraces('graph', trace);
-    Plotly.deleteTraces('graph', 0);
+    // Update the traces.
+    Plotly.react('graph', traces, global.layout);
 });
 
 //Reset the page
@@ -217,6 +236,8 @@ async function connect() {
         document.getElementById('output').innerHTML = 'Connecting to Endpoint...';
         window.substrate = await api.ApiPromise.create({ provider });
         global.endpoint = endpoint;
+        global.chainDecimals = substrate.registry.chainDecimals;
+        global.chainToken = substrate.registry.chainToken;
         document.getElementById('output').innerHTML = 'Connected';
     }
 }
@@ -257,7 +278,8 @@ async function graphBalance() {
             console.log('Balances', global.balances);
             if (global.balances) {
                 // Create the graph
-                createGraph(global.balances);
+                let traces = createTraces(global.balances);
+                createGraph(traces);
             } else {
                 document.getElementById('output').innerHTML =
                     'No transactions found for that address.';
@@ -293,6 +315,10 @@ window.onload = async function () {
     await connect();
     // Check for querystrings
     var queryStrings = parseQueryStrings();
+    // Set endpoint
+    if (queryStrings['endpoint']) {
+        document.getElementById('endpoint').value = queryStrings['endpoint'];
+    }
     // Set starting block
     if (queryStrings['start']) {
         document.getElementById('startBlock').value = queryStrings['start'];
