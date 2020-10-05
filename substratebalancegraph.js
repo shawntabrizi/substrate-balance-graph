@@ -155,7 +155,8 @@ function createTraces(balances) {
         y: unpack(balances, 'free'),
         hoverinfo: 'name+y+x+text',
         text: time,
-        name: 'Free'
+        name: 'Free',
+        visible: 'legendonly'
     };
 
     var trace3 = {
@@ -165,7 +166,8 @@ function createTraces(balances) {
         y: unpack(balances, 'reserved'),
         hoverinfo: 'name+y+x+text',
         text: time,
-        name: 'Reserved'
+        name: 'Reserved',
+        visible: 'legendonly'
     };
 
     return [trace1, trace2, trace3]
