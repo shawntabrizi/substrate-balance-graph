@@ -36,7 +36,7 @@ function updateUrl(startBlock, endBlock) {
 function toUnit(balance, decimals) {
     base = new BN(10).pow(new BN(decimals));
     dm = new BN(balance).divmod(base);
-    return parseFloat(dm.div.toString() + "." + dm.mod.toString())
+    return parseFloat(dm.div.toString() + "." + dm.mod.toString().padStart(chainDecimal, '0'))
 }
 
 // Given an address and a range of blocks, query the Substrate blockchain for the balance across the range
