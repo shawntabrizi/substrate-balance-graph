@@ -10,22 +10,13 @@ var global = {
     layout: {},
 };
 
-// Get the first transaction block for an address
-async function getFirstBlock(address) {
-    try {
-        return 0;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 // Update window URL to contain querystring, making it easy to share
 function updateUrl(startBlock, endBlock) {
     var url = [location.protocol, '//', location.host, location.pathname].join(
         ''
     );
     url +=
-        '?endpoint='+ global.endpoint +
+        '?endpoint=' + global.endpoint +
         '&address=' + global.address +
         '&start=' + startBlock +
         '&end=' + endBlock;
@@ -36,7 +27,11 @@ function updateUrl(startBlock, endBlock) {
 function toUnit(balance, decimals) {
     base = new BN(10).pow(new BN(decimals));
     dm = new BN(balance).divmod(base);
-    return parseFloat(dm.div.toString() + "." + dm.mod.toString().padStart(chainDecimal, '0'))
+    div_string = dm.div.toString();
+    mod_string = dm.mod.toString().padStart(decimals, '0');
+    final_string = div_string + "." + mod_string;
+    final = parseFloat(final_string);
+    return final
 }
 
 // Given an address and a range of blocks, query the Substrate blockchain for the balance across the range
@@ -238,8 +233,8 @@ async function connect() {
         document.getElementById('output').innerHTML = 'Connecting to Endpoint...';
         window.substrate = await api.ApiPromise.create({ provider });
         global.endpoint = endpoint;
-        global.chainDecimals = substrate.registry.chainDecimals;
-        global.chainToken = substrate.registry.chainToken;
+        global.chainDecimals = substrate.registry.chainDecimals[0];
+        global.chainToken = substrate.registry.chainTokens[0];
         document.getElementById('output').innerHTML = 'Connected';
     }
 }
@@ -256,17 +251,18 @@ async function graphBalance() {
         // Find the intial range, from first block to current block
         var startBlock, endBlock;
 
-        if (document.getElementById('startBlock').value) {
-            startBlock = parseInt(document.getElementById('startBlock').value);
-        } else {
-            startBlock = parseInt(await getFirstBlock(global.address));
-        }
-
         if (document.getElementById('endBlock').value) {
             endBlock = parseInt(document.getElementById('endBlock').value);
         } else {
             endBlock = parseInt(await substrate.derive.chain.bestNumber());
-            console.log('End Block:', endBlock);
+        }
+
+        if (document.getElementById('startBlock').value) {
+            startBlock = parseInt(document.getElementById('startBlock').value);
+        } else {
+            // 10 blocks per minute, 43800 min per month, 1 months of data
+            let HISTORICAL = 10 * 43800 * 1;
+            startBlock = endBlock < HISTORICAL ? 0 : endBlock - HISTORICAL;
         }
 
         // Check that the address actually has transactions to show
@@ -277,7 +273,6 @@ async function graphBalance() {
                 startBlock,
                 endBlock
             );
-            console.log('Balances', global.balances);
             if (global.balances) {
                 // Create the graph
                 let traces = createTraces(global.balances);
