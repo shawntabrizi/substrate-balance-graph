@@ -260,8 +260,8 @@ async function graphBalance() {
         if (document.getElementById('startBlock').value) {
             startBlock = parseInt(document.getElementById('startBlock').value);
         } else {
-            // 10 blocks per minute, 43800 min per month, 1 months of data
-            let HISTORICAL = 10 * 43800 * 1;
+            // 10 blocks per minute, 1440 min per day, 7 days per week
+            let HISTORICAL = 10 * 1440 * 7;
             startBlock = endBlock < HISTORICAL ? 0 : endBlock - HISTORICAL;
         }
 
