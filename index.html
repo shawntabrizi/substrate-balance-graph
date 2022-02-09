@@ -11,7 +11,8 @@
     <title>Substrate Balance Graph</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 
 <body>
@@ -20,7 +21,8 @@
             <h1>Substrate Balance Graph</h1>
             <p class="lead">Graph the historical Free Balance of a Substrate address.</p>
             <div class="input-group">
-                <input type="text" class="form-control" id="address" value="EGVQCe73TpFyAZx5uKfE1222XfkT3BSKozjgcqzLBnc5eYo" />
+                <input type="text" class="form-control" id="address"
+                    value="EGVQCe73TpFyAZx5uKfE1222XfkT3BSKozjgcqzLBnc5eYo" />
                 <div class="input-group-append">
                     <a class="btn btn-lg btn-primary" onclick="graphBalance();" role="button">Graph Balance &raquo;</a>
                 </div>
@@ -31,7 +33,8 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">Endpoint:</span>
                         </div>
-                        <input type="text" class="form-control" id="endpoint" value="wss://kusama-rpc.polkadot.io/" placeholder="wss://..." />
+                        <input type="text" class="form-control" id="endpoint" value="wss://kusama-rpc.polkadot.io/"
+                            placeholder="wss://..." />
                     </div>
                 </div>
             </div>
@@ -58,20 +61,32 @@
         <div id="graph" style="width:100%;height:600px;"></div>
     </div>
     <div class="fixed-bottom bg-light">
-        <p class="text-center text-muted">Created by <a href="http://shawntabrizi.com">Shawn Tabrizi</a> - Source on <a href="https://github.com/shawntabrizi/substrate-balance-graph">GitHub</a> - <a href="http://shawntabrizi.com/substrate/porting-web3-js-to-polkadot-js/">Blog Post</a>            - Using <a href="https://plot.ly/javascript/">Plotly.js</a> and <a href="https://github.com/polkadot-js/api/">Polkadot.js</a></p>
+        <p class="text-center text-muted">Created by <a href="http://shawntabrizi.com">Shawn Tabrizi</a> - Source on <a
+                href="https://github.com/shawntabrizi/substrate-balance-graph">GitHub</a> - <a
+                href="http://shawntabrizi.com/substrate/porting-web3-js-to-polkadot-js/">Blog Post</a> - Using <a
+                href="https://plot.ly/javascript/">Plotly.js</a> and <a
+                href="https://github.com/polkadot-js/api/">Polkadot.js</a></p>
     </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
 
     <!-- Custom JavaScript -->
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="//unpkg.com/bn.js/lib/bn.js"></script>
-    <script src="//unpkg.com/polkadot-js-bundle/polkadot.js"></script>
+    <script src="//unpkg.com/@polkadot/util/bundle-polkadot-util.js"></script>
+    <script src="//unpkg.com/@polkadot/util-crypto/bundle-polkadot-util-crypto.js"></script>
+    <script src="//unpkg.com/@polkadot/types/bundle-polkadot-types.js"></script>
+    <script src="//unpkg.com/@polkadot/api/bundle-polkadot-api.js"></script>
     <script src="./substratebalancegraph.js"></script>
 </body>
 

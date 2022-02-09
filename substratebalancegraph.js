@@ -1,3 +1,6 @@
+const { BN } = polkadotUtil;
+const { WsProvider, ApiPromise } = polkadotApi;
+
 // Global Variables
 var global = {
     balances: [],
@@ -229,9 +232,9 @@ function reset() {
 async function connect() {
     let endpoint = document.getElementById('endpoint').value;
     if (!window.substrate || global.endpoint != endpoint) {
-        const provider = new api.WsProvider(endpoint);
+        const provider = new WsProvider(endpoint);
         document.getElementById('output').innerHTML = 'Connecting to Endpoint...';
-        window.substrate = await api.ApiPromise.create({ provider });
+        window.substrate = await ApiPromise.create({ provider });
         global.endpoint = endpoint;
         global.chainDecimals = substrate.registry.chainDecimals[0];
         global.chainToken = substrate.registry.chainTokens[0];
